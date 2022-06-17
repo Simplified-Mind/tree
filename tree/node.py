@@ -1,3 +1,9 @@
+"""
+Examples:
+    >>> from tree.node import Node
+    >>> a = Node('a')
+"""
+
 import os
 from json import dumps
 from warnings import warn
@@ -6,8 +12,8 @@ from ast import parse, Assign, unparse
 
 import pandas as pd
 from loguru import logger
-from utils import FormulaTransformer
-from exceptions import ReadOnlyError, FormulaError, MissingFormula
+from tree.utils import FormulaTransformer
+from tree.exceptions import ReadOnlyError, FormulaError, MissingFormula
 
 from anytree.node import NodeMixin, SymlinkNodeMixin
 from anytree.node.util import _repr
@@ -27,6 +33,7 @@ class Node(NodeMixin):
         trigger_type: Literal['any', 'all'] = 'any',
         is_trigger_event: bool = True,
         is_deferred: bool = False,
+        read_only: bool = False,
         parent: Type[NodeMixin] = None,
         children: Type[NodeMixin] = None,
     ):
@@ -34,7 +41,7 @@ class Node(NodeMixin):
         self.desc = desc
         self._series = series if series else pd.Series(dtype='float64')
         self.assert_series_equal = True
-        self.read_only = False
+        self.read_only = read_only
         self.dirty = False
         self.is_locked = False
         self._formula = formula
@@ -261,3 +268,9 @@ class SymlinkNode(SymlinkNodeMixin):
 
     def __repr__(self):
         return _repr(self, [repr(self.target)], nameblacklist=('target', ))
+
+
+if __name__ == '__main__':
+    a = Node('a', formula='')
+
+    a.calculate()
