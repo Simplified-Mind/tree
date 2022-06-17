@@ -1,7 +1,14 @@
 """
 Examples:
-    >>> from tree.node import Node
-    >>> a = Node('a')
+    >>> from tree import Node, SymlinkNode
+    >>> a = Node('a', formula='a - b')
+    >>> b = Node('b', parent=a)
+    >>> c = Node('c', parent=a)
+    >>> a.pprint()
+    >>> x = Node('x', formula='x + y')
+    >>> y = Node('y', parent=x)
+    >>> z = Node('z', parent=x)
+    >>> x.pprint()
 """
 
 import os
@@ -43,7 +50,7 @@ class Node(NodeMixin):
         self.assert_series_equal = True
         self.read_only = read_only
         self.dirty = False
-        self.is_locked = False
+        self.locked = False
         self._formula = formula
         self._funcs_path = funcs_path if funcs_path else os.path.join(os.path.dirname(__file__), 'functions.py')
         self._registered_functions = []
@@ -101,7 +108,7 @@ class Node(NodeMixin):
         if not self.is_root:
             if not self.parent.deferred_recalculate:
                 if self.parent.trigger_type == 'any':
-                    if all((self.dirty, self.is_trigger_event, not self.is_locked)):
+                    if all((self.dirty, self.is_trigger_event, not self.locked)):
                         flag = True
                 else:
                     flag = True
@@ -110,7 +117,7 @@ class Node(NodeMixin):
                         if not s.is_trigger_event:
                             pass
                         else:
-                            if not s.dirty or s.is_locked:
+                            if not s.dirty or s.locked:
                                 flag = False
                                 break
         return flag
