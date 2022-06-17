@@ -5,10 +5,16 @@ Examples:
     >>> b = Node('b', parent=a)
     >>> c = Node('c', parent=a)
     >>> a.pprint()
+        a            a - b
+    ├── b
+    └── c
     >>> x = Node('x', formula='x + y')
     >>> y = Node('y', parent=x)
     >>> z = Node('z', parent=x)
     >>> x.pprint()
+        x            x + y
+    ├── y
+    └── z
 """
 
 import os
@@ -35,6 +41,7 @@ class Node(NodeMixin):
         name: str,
         desc: str = '',
         series: pd.Series = None,
+        assert_series_equal: bool = True,
         formula: str = '',
         funcs_path: str = None,
         trigger_type: Literal['any', 'all'] = 'any',
@@ -47,10 +54,10 @@ class Node(NodeMixin):
         self.name = name
         self.desc = desc
         self._series = series if series else pd.Series(dtype='float64')
-        self.assert_series_equal = True
+        self.assert_series_equal = assert_series_equal
         self.read_only = read_only
-        self.dirty = False
-        self.locked = False
+        self.is_dirty = False
+        self.is_locked = False
         self._formula = formula
         self._funcs_path = funcs_path if funcs_path else os.path.join(os.path.dirname(__file__), 'functions.py')
         self._registered_functions = []
@@ -106,9 +113,9 @@ class Node(NodeMixin):
     def can_recalculate_parent(self) -> bool:
         flag = False
         if not self.is_root:
-            if not self.parent.deferred_recalculate:
+            if not self.parent.is_deferred and not self.parent.is_locked:
                 if self.parent.trigger_type == 'any':
-                    if all((self.dirty, self.is_trigger_event, not self.locked)):
+                    if all((self.is_dirty, self.is_trigger_event, not self.is_locked)):
                         flag = True
                 else:
                     flag = True
@@ -117,7 +124,7 @@ class Node(NodeMixin):
                         if not s.is_trigger_event:
                             pass
                         else:
-                            if not s.dirty or s.locked:
+                            if not s.is_dirty or s.is_locked:
                                 flag = False
                                 break
         return flag
@@ -132,7 +139,7 @@ class Node(NodeMixin):
             raise TypeError('Expected a string!')
 
         v = self.registered_functions + ['self']
-        e = ['from functions import *']
+        e = ['from tree.functions import *']
         for i, c in enumerate(self.children):
             v.append(c.name)
             e.append(f'{c.name} = self.children[{i}].series')
@@ -171,7 +178,7 @@ class Node(NodeMixin):
 
         if flag:
             self._series = value
-            self.dirty = True
+            self.is_dirty = True
 
             if self.can_recalculate_parent:
                 logger.debug(f"'{self.parent.name}' is triggered by the node '{self.name}'")
@@ -212,10 +219,10 @@ class Node(NodeMixin):
         def default_attr_iter(attrs: List[tuple]) -> List[tuple]:
             lst = []
             for (k, v) in attrs:
-                if k in ['name', 'dirty', 'formula']:
+                if k in ['name', 'is_dirty', 'formula']:
                     lst.append((k, v))
                 elif k == 'target':
-                    lst += [('name', v.name), ('dirty', v.dirty), ('formula', v.formula)]
+                    lst += [('name', v.name), ('is_dirty', v.is_dirty), ('formula', v.formula)]
             return lst
 
         exporter = DictExporter(
@@ -244,7 +251,7 @@ class Node(NodeMixin):
         length: int = 12,
     ) -> None:
         for pre, _, node in RenderTree(self, style=style, childiter=child_iter, maxlevel=max_level):
-            tree = f'{pre}{node.name}{" 🚩" if node.dirty else ""}'
+            tree = f'{pre}{node.name}{" 🚩" if node.is_dirty else ""}'
             print(tree.ljust(length), node.formula)
 
     def __repr__(self) -> str:
@@ -275,9 +282,3 @@ class SymlinkNode(SymlinkNodeMixin):
 
     def __repr__(self):
         return _repr(self, [repr(self.target)], nameblacklist=('target', ))
-
-
-if __name__ == '__main__':
-    a = Node('a', formula='')
-
-    a.calculate()
