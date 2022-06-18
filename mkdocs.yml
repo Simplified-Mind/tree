@@ -23,6 +23,7 @@ plugins:
 
 nav:
   - Overview: index.md
+  - Recipes: recipes.md
   - Reference: reference/
 
 extra_css:
