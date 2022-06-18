@@ -1,3 +1,6 @@
+"""Exceptions"""
+
+
 class FormulaError(RuntimeError):
     pass
 

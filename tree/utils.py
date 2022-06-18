@@ -1,3 +1,6 @@
+"""Utility"""
+
+
 from typing import List, Any
 from ast import Name, NodeTransformer
 from tree.exceptions import FormulaError

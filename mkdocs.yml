@@ -5,8 +5,23 @@ theme:
   name: material
 
 plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+  - section-index
   - mkdocstrings
 
 nav:
   - Overview: index.md
-  - Reference: reference.md
+  - Reference: reference/
+
+extra_css:
+- assets/css/code_select.css
+
+markdown_extensions:
+- pymdownx.highlight:
+    use_pygments: true
+    pygments_lang_class: true

@@ -1,21 +1,4 @@
-"""
-Examples:
-    >>> from tree import Node, SymlinkNode
-    >>> a = Node('a', formula='a - b')
-    >>> b = Node('b', parent=a)
-    >>> c = Node('c', parent=a)
-    >>> a.pprint()
-        a            a - b
-    ├── b
-    └── c
-    >>> x = Node('x', formula='x + y')
-    >>> y = Node('y', parent=x)
-    >>> z = Node('z', parent=x)
-    >>> x.pprint()
-        x            x + y
-    ├── y
-    └── z
-"""
+"""Reactive Node"""
 
 import os
 from json import dumps

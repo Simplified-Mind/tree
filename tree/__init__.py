@@ -8,3 +8,6 @@ dynamically.
 """
 
 from tree.node import Node, SymlinkNode
+from tree.exceptions import FormulaError, MissingFormula, ReadOnlyError
+from tree.functions import *
+from tree.utils import FormulaTransformer

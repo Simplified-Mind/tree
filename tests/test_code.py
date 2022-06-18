@@ -43,15 +43,23 @@ def test_is_locked():
 
 
 def test_symlink_node():
-    a = Node('a', formula='a + b')
+    a = Node('a', formula='b + c')
     b = Node('b', parent=a)
     c = Node('c', parent=a, formula='s + t')
     s = Node('s', parent=c)
     t = Node('t', parent=c)
 
-    x = Node('x', formula='x + y + w')
+    x = Node('x', formula='y + c')
     y = Node('y', parent=x)
     z = SymlinkNode(c, parent=x)
+
+    v = pd.Series([1], dtype='float64')
+    s.series = v
+    t.series = v
+    pd.testing.assert_series_equal(c.series, v + 1)
+
+    b.series = pd.Series([1], dtype='float64')
+    pd.testing.assert_series_equal(a.series, v + 2)
 
 
 if __name__ == '__main__':
