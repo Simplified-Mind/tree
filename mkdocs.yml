@@ -3,6 +3,13 @@ site_description: Tree
 
 theme:
   name: material
+  logo: assets/logo.png
+  favicon: assets/images/favicon.png
+  language: en
+  features:
+    - navigation.tracking
+    - navigation.instant
+    - navigation.tabs
 
 plugins:
   - search
