@@ -1,6 +1,13 @@
 !!! abstract
 ::: tree
 
+!!! info "Features"
+* [x] Reactive 
+* [x] Symbolic
+* [x] Read only
+* [x] Dynamic expression validation and execution
+* [x] Dynamic tree builder
+
 !!! example "Diagram"
 ```mermaid
 graph LR
@@ -16,7 +23,6 @@ graph LR
 ```
 
 !!! todo "TODO"
-- [x] Reactive node
 - [ ] User interface
     * [ ] Tree builder 
     * [ ] Node builder with formula 

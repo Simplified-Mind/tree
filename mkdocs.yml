@@ -44,3 +44,10 @@ markdown_extensions:
 - pymdownx.emoji:
     emoji_index: !!python/name:materialx.emoji.twemoji
     emoji_generator: !!python/name:materialx.emoji.to_svg
+- pymdownx.tasklist:
+    custom_checkbox: true
+
+copyright: Copyright &copy; 2022 Hong Ji
+
+extra:
+  generator: false
