@@ -1,4 +1,54 @@
-"""Reactive Node"""
+"""Reactive Node
+Examples:
+    >>> import pandas as pd
+    >>> from tree import Node, SymlinkNode
+    >>> a = Node('a', formula='b + c')
+    >>> b = Node('b', parent=a)
+    >>> c = Node('c', parent=a, formula='s + t')
+    >>> s = Node('s', parent=c)
+    >>> t = Node('t', parent=c)
+    >>> a.pprint()
+        a        b + c
+    ├── b
+    └── c        s + t
+        ├── s
+        └── t
+    >>> a.to_json()
+    {"name": "a", "is_dirty": false, "children": [{"name": "b", "is_dirty": false}, {"name": "c", "is_dirty": false, "children": [{"name": "s", "is_dirty": false}, {"name": "t", "is_dirty": false}]}]}
+    >>> x = Node('x', formula='y + c')
+    >>> y = Node('y', parent=x)
+    >>> z = SymlinkNode(c, parent=x)
+    >>> x.pprint()
+        x        y + c
+    ├── y
+    └── c        s + t
+    >>> x.to_json()
+    {"name": "x", "is_dirty": false, "children": [{"name": "y", "is_dirty": false}, {"name": "c", "is_dirty": false, "formula": "s + t"}]}
+    >>> v = pd.Series([1], dtype='float64')
+    >>> s.series = v
+    >>> t.series = v
+    >>> pd.testing.assert_series_equal(c.series, v + 1)
+    True
+    >>> b.series = pd.Series([1], dtype='float64')
+    >>> pd.testing.assert_series_equal(a.series, v + 2)
+    True
+    >>> a.pprint()
+        a 🚩      b + c
+    ├── b 🚩
+    └── c 🚩      s + t
+        ├── s 🚩
+        └── t 🚩
+    >>> x.pprint()
+        x 🚩      y + c
+    ├── y
+    └── c 🚩      s + t
+
+The module contains the following classes:
+
+- `Node`
+- `SymlinkNode`
+
+"""
 
 import os
 from json import dumps
@@ -19,6 +69,7 @@ from anytree import RenderTree, AbstractStyle, ContStyle
 
 
 class Node(NodeMixin):
+    """Reactive Node"""
     def __init__(
         self,
         name: str,
@@ -37,19 +88,38 @@ class Node(NodeMixin):
         self.name = name
         self.desc = desc
         self._series = series if series else pd.Series(dtype='float64')
+
+        # Only reassign the series if the new value is different from the existing one
         self.assert_series_equal = assert_series_equal
+
+        # Prevent the user to change the children if read_only is True
         self.read_only = read_only
+
+        # Flag if the series has been updated
         self.is_dirty = False
+
+        # Flag if the series is being updated by the remote
         self.is_locked = False
         self._formula = formula
         self._funcs_path = funcs_path if funcs_path else os.path.join(os.path.dirname(__file__), 'functions.py')
         self._registered_functions = []
         self._statement = None
         self._statement_ast = None
+
+        # Define when the node can be updated
+        # 1. 'all' - update the node when children are changed
+        # 2. 'any' - update the node when a child is changed
         self.trigger_type = trigger_type
+
+        # Flag if node change will trigger the parent to be re-calculated
         self.is_trigger_event = is_trigger_event
+
+        # Flag if the node should be updated immediately if all the conditions are passed
         self.is_deferred = is_deferred
+
+        # Keep track of the symbolic nodes
         self.book = {}
+
         self.parent = parent
         if children:
             self.children = children
@@ -243,6 +313,7 @@ class Node(NodeMixin):
 
 
 class SymlinkNode(SymlinkNodeMixin):
+    """Symbolic Node"""
     def __init__(self, target, parent=None, children=None, **kwargs):
         self.target = target
         self.target.__dict__.update(kwargs)
