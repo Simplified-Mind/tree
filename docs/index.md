@@ -8,6 +8,7 @@
 * [x] Dynamic expression validation and execution
 * [x] Dynamic tree builder
 
+
 !!! example "Diagram"
 ```mermaid
 graph LR
@@ -23,7 +24,11 @@ graph LR
 ```
 
 !!! todo "TODO"
-- [ ] User interface
+- [ ] Features
+  * [ ] Async/Thread support
+  * [ ] Echarts utilities
+  * [ ] Vxe-table utilities
+- [ ] UI
     * [ ] Tree builder 
     * [ ] Node builder with formula 
     * [ ] Tree viewer with expandable grid editor
