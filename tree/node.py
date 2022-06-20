@@ -28,10 +28,10 @@ Examples:
     >>> s.series = v
     >>> t.series = v
     >>> pd.testing.assert_series_equal(c.series, v + 1)
-    True
     >>> b.series = pd.Series([1], dtype='float64')
     >>> pd.testing.assert_series_equal(a.series, v + 2)
-    True
+    >>> c.series = pd.Series([1], dtype='float64')
+    >>> pd.testing.assert_series_equal(a.series, pd.Series([2], dtype='float64'))
     >>> a.pprint()
         a 🚩      b + c
     ├── b 🚩
@@ -336,3 +336,25 @@ class SymlinkNode(SymlinkNodeMixin):
 
     def __repr__(self):
         return _repr(self, [repr(self.target)], nameblacklist=('target', ))
+
+
+if __name__ == '__main__':
+    data = """
+    a: root
+    children:
+    - a: sub0
+      children:
+      - a: sub0A
+        b: foo
+      - a: sub0B
+    - a: sub1
+    
+    c: root
+    children:
+    - c: sub0
+      children:
+      - c: sub0A
+        b: foo
+      - c: sub0B
+    - c: sub1
+    """
