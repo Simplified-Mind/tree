@@ -15,7 +15,7 @@ for path in sorted(Path('tree').rglob('*.py')):
         nav[parts] = doc_path.as_posix()
         with mkdocs_gen_files.open(full_doc_path.absolute(), 'w') as fd:
             ident = '.'.join(parts)
-            fd.write(f'::: tree.{ident}')
+            fd.write(f'!!! abstract\n::: tree.{ident}')
 
 with mkdocs_gen_files.open('reference/SUMMARY.md', 'w') as nav_file:
     nav_file.writelines(nav.build_literate_nav())
