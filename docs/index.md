@@ -25,9 +25,9 @@ graph LR
 
 !!! todo "TODO"
 - [ ] Features
-  * [ ] Async/Thread support
-  * [ ] Echarts utilities
-  * [ ] Vxe-table utilities
+    * [ ] Async/Thread support
+    * [ ] Echarts utilities
+    * [ ] Vxe-table utilities
 - [ ] UI
     * [ ] Tree builder 
     * [ ] Node builder with formula 
