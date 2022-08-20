@@ -73,6 +73,7 @@ class Node(NodeMixin):
     def __init__(
         self,
         name: str,
+        curve: str = None,
         desc: str = '',
         series: pd.Series = None,
         assert_series_equal: bool = True,
@@ -87,7 +88,7 @@ class Node(NodeMixin):
     ):
         self.name = name
         self.desc = desc
-        self._series = series if series else pd.Series(dtype='float64')
+        self._series = series
 
         # Only reassign the series if the new value is different from the existing one
         self.assert_series_equal = assert_series_equal
@@ -102,7 +103,7 @@ class Node(NodeMixin):
         self.is_locked = False
         self._formula = formula
         self._funcs_path = funcs_path if funcs_path else os.path.join(os.path.dirname(__file__), 'functions.py')
-        self._registered_functions = []
+        self._registered_functions = self.get_registered_functions()
         self._statement = None
         self._statement_ast = None
 
@@ -162,18 +163,17 @@ class Node(NodeMixin):
     def registered_functions(self) -> List[str]:
         return self._registered_functions
 
-    @property
-    def can_recalculate_parent(self) -> bool:
+    def can_recalculate_parent(self, node: Type[NodeMixin]) -> bool:
         flag = False
-        if not self.is_root:
-            if not self.parent.is_deferred and not self.parent.is_locked:
-                if self.parent.trigger_type == 'any':
-                    if all((self.is_dirty, self.is_trigger_event, not self.is_locked)):
+        if not node.is_root:
+            if not node.parent.is_deferred and not node.parent.is_locked:
+                if node.parent.trigger_type == 'any':
+                    if all((node.is_dirty, node.is_trigger_event, not node.is_locked)):
                         flag = True
                 else:
                     flag = True
 
-                    for s in self.siblings:
+                    for s in node.siblings:
                         if not s.is_trigger_event:
                             pass
                         else:
@@ -233,12 +233,12 @@ class Node(NodeMixin):
             self._series = value
             self.is_dirty = True
 
-            if self.can_recalculate_parent:
+            if self.can_recalculate_parent(self):
                 logger.debug(f"'{self.parent.name}' is triggered by the node '{self.name}'")
                 self.parent.calculate()
 
             for key, value in self.book.items():
-                if value.can_recalculate_parent:
+                if value.can_recalculate_parent(value):
                     logger.debug(f"'{value.parent.name}' is triggered by the symbolic node '{value.name}'")
                     value.parent.calculate()
 
@@ -252,10 +252,7 @@ class Node(NodeMixin):
             return pd.concat(data, axis=1, keys=name)
 
     def calculate(self) -> Any:
-        if not self.children:
-            raise FormulaError('No children found!')
-
-        if self.formula:
+        if self.formula and self.children:
             if self._statement_ast is None:
                 self.formula = self.formula
             exec(unparse(self._statement_ast))

@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "tree"
+version = "0.1.0"
+description = ""
+authors = ["Hong Ji <johnjihong@yahoo.co.uk>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pandas = "^1.4.3"
+anytree = "^2.8.0"
+loguru = "^0.6.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

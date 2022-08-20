@@ -20,9 +20,16 @@ import pandas as pd
 from typing import List, Union
 from functools import reduce
 
-__all__ = ['priority']
+__all__ = ['priority', 'MAX', 'MIN']
 
 
 def priority(*args: List[Union[pd.DataFrame, pd.Series]]) -> Union[pd.DataFrame, pd.Series]:
     """Pandas combine_first for multiple DataFrame/Series."""
     return reduce(lambda l, r: l.combine_first(r), args)
+
+
+def MAX(series: pd.Series, x: int):
+    return series.combine(x, max)
+
+def MIN(series: pd.Series, x: int):
+    return series.combine(x, min)

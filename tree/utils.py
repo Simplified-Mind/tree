@@ -27,6 +27,6 @@ class FormulaTransformer(NodeTransformer):
 
     def visit_Name(self, node: Name) -> Any:
         if node.id not in self.registered_kwargs:
-            raise FormulaError('Please use registered keywords.')
+            raise FormulaError(f'Unregistered keyword: {node.id}')
 
         return node
